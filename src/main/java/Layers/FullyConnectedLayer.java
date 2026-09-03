@@ -146,14 +146,16 @@ public class FullyConnectedLayer extends Layer{
     public void setRandomWeights() {
         Random rand = new Random(SEED);
 
+        double scale = Math.sqrt(2.0 / _inLength);
+
         for (int i = 0; i < _inLength; i++) {
             for (int j = 0; j < _outLength; j++) {
-                weights[i][j] = rand.nextGaussian();
+                weights[i][j] = rand.nextGaussian() * scale;
             }
         }
 
         for (int j = 0; j < _outLength; j++) {
-            biases[j] = rand.nextGaussian();
+            biases[j] = 0.0;
         }
     }
 
