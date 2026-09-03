@@ -41,7 +41,8 @@ public class FullyConnectedLayer extends Layer{
     public double[] fullyConnectedForwardPass(double[] input) {
         lastX = input;
 
-        double[] z = biases;
+        double[] z = new double[_outLength];
+        System.arraycopy(biases, 0, z, 0, _outLength);
         double[] out = new double[_outLength];
 
         for(int i = 0; i < _inLength; i++) {
@@ -155,12 +156,12 @@ public class FullyConnectedLayer extends Layer{
         }
 
         for (int j = 0; j < _outLength; j++) {
-            biases[j] = 0.0;
+            biases[j] = 0.01;
         }
     }
 
     public double reLu(double input) {
-        return input < 0 ? LEAK * input : input;
+        return input < 0 ? LEAK : input;
     }
 
     public double derrivativeReLu(double input) {

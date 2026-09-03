@@ -23,10 +23,10 @@ public class mainMNIST {
         System.out.println("Images Train size: " + imagesTrain.size());
         System.out.println("Images Test Size: " + imagesTest.size());
 
-        NetworkBuilder nb = new NetworkBuilder(28, 28, 256*100);
-        nb.addConvolutionLayer(8,5,1,0.1,SEED);
+        NetworkBuilder nb = new NetworkBuilder(28, 28, 255);
+        nb.addConvolutionLayer(8,5,1,0.001,SEED);
         nb.addMaxPoolLayer(3,2);
-        nb.addFullyConnectedLayer(18, 0.1, SEED);
+        nb.addFullyConnectedLayer(10, 0.001, SEED);
 
         NeuralNetwork nn = nb.build();
 

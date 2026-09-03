@@ -30,8 +30,8 @@ public class MaxPoolLayer extends Layer{
         _lastMaxRow = new ArrayList<>();
         _lastMaxCol = new ArrayList<>();
 
-        for(int l =0; l < input.size(); l++){
-            output.add(pool(input.get(l)));
+        for (double[][] doubles : input) {
+            output.add(pool(doubles));
         }
 
         return output;
@@ -48,7 +48,7 @@ public class MaxPoolLayer extends Layer{
         for(int r = 0; r < getOutputRows(); r+= _stepSize){
             for(int c = 0; c < getOutputCols(); c+= _stepSize){
 
-                double max = 0.0;
+                double max = Double.NEGATIVE_INFINITY;
                 maxRows[r][c] = -1;
                 maxCols[r][c] = -1;
 
@@ -99,7 +99,7 @@ public class MaxPoolLayer extends Layer{
         List<double[][]> dXdL = new ArrayList<>();
 
         int l = 0;
-        for(double[][] array: dLdO){
+        for(double[][] array : dLdO){
             double[][] error = new double[_inRows][_inCols];
 
             for(int r = 0; r < getOutputRows(); r++){
