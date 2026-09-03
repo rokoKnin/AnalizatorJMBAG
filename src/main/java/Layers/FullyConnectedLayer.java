@@ -153,7 +153,7 @@ public class FullyConnectedLayer extends Layer{
         }
 
         for (int j = 0; j < _outLength; j++) {
-            biases[j] = 0.0;
+            biases[j] = rand.nextGaussian();
         }
     }
 
