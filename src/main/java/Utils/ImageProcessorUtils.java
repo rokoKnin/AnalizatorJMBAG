@@ -1,5 +1,7 @@
 package Utils;
 
+import Image.Image;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -16,47 +18,39 @@ public class ImageProcessorUtils {
      * Resizes a list of segmented images to 32x32 grayscale images with anti-aliasing (gray edges)
      * and a 2px safety padding on all sides.
      *
-     * @param originalImages List of segmented digit BufferedImages
-     * @return List of 32x32 grayscale BufferedImages with preserved gray gradients
+     * @param src BufferedImage
+     * @return 28x28 grayscale BufferedImage with preserved gray gradients
      */
-    public static List<BufferedImage> formatTo32x32(List<BufferedImage> originalImages) {
-        List<BufferedImage> formattedImages = new ArrayList<>();
+    public static BufferedImage format(BufferedImage src) {
+        BufferedImage canvas = new BufferedImage(CANVAS_SIZE, CANVAS_SIZE, BufferedImage.TYPE_BYTE_GRAY);
+        Graphics2D g = canvas.createGraphics();
 
-        for (BufferedImage src : originalImages) {
-            // 1. Create a 32x32 grayscale canvas initialized to solid black
-            BufferedImage canvas = new BufferedImage(CANVAS_SIZE, CANVAS_SIZE, BufferedImage.TYPE_BYTE_GRAY);
-            Graphics2D g = canvas.createGraphics();
+        // Fill canvas with black
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
-            // Fill canvas with black
-            g.setColor(Color.BLACK);
-            g.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+        // Enable Bilinear Interpolation to smoothly calculate gray anti-aliased pixels
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
-            // Enable Bilinear Interpolation to smoothly calculate gray anti-aliased pixels
-            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        // Enable general anti-aliasing for smoother stroke rendering
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            // Enable general anti-aliasing for smoother stroke rendering
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        int srcWidth = src.getWidth();
+        int srcHeight = src.getHeight();
 
-            // 2. Calculate aspect-ratio scaling to fit within the 28x28 inner box
-            int srcWidth = src.getWidth();
-            int srcHeight = src.getHeight();
+        double scale = Math.min((double) MAX_DIGIT_SIZE / srcWidth, (double) MAX_DIGIT_SIZE / srcHeight);
+        int newWidth = (int) Math.round(srcWidth * scale);
+        int newHeight = (int) Math.round(srcHeight * scale);
 
-            double scale = Math.min((double) MAX_DIGIT_SIZE / srcWidth, (double) MAX_DIGIT_SIZE / srcHeight);
-            int newWidth = (int) Math.round(srcWidth * scale);
-            int newHeight = (int) Math.round(srcHeight * scale);
+        // 3. Center the digit inside the 32x32 canvas
+        int x = (CANVAS_SIZE - newWidth) / 2;
+        int y = (CANVAS_SIZE - newHeight) / 2;
 
-            // 3. Center the digit inside the 32x32 canvas
-            int x = (CANVAS_SIZE - newWidth) / 2;
-            int y = (CANVAS_SIZE - newHeight) / 2;
+        // 4. Draw the image onto the canvas
+        g.drawImage(src, x, y, newWidth, newHeight, null);
+        g.dispose();
 
-            // 4. Draw the image onto the canvas
-            g.drawImage(src, x, y, newWidth, newHeight, null);
-            g.dispose();
-
-            formattedImages.add(canvas);
-        }
-
-        return formattedImages;
+        return canvas;
     }
 
     // Threshold above which a pixel is considered part of a digit (0 to 255)
@@ -74,7 +68,7 @@ public class ImageProcessorUtils {
      * @param inputImage The input grayscale BufferedImage
      * @return List of BufferedImage objects, each containing a single segmented number
      */
-    public static List<BufferedImage> segmentNumbers(BufferedImage inputImage) {
+    public static List<Image> segmentNumbers(BufferedImage inputImage, String[] digits) {
         int width = inputImage.getWidth();
         int height = inputImage.getHeight();
 
@@ -99,14 +93,17 @@ public class ImageProcessorUtils {
         List<Rectangle> mergedBoxes = mergeCloseBoxes(detectedBoxes, MERGE_DISTANCE);
 
         // Step 3: Crop sub-images for each final bounding box
-        List<BufferedImage> digitImages = new ArrayList<>();
+        List<Image> digitImages = new ArrayList<>();
+        int i = 0;
         for (Rectangle box : mergedBoxes) {
             BufferedImage subImage = inputImage.getSubimage(box.x, box.y, box.width, box.height);
 
             // Create a deep copy so subImage isn't bound to the original memory buffer
             BufferedImage copy = new BufferedImage(box.width, box.height, BufferedImage.TYPE_BYTE_GRAY);
             copy.getGraphics().drawImage(subImage, 0, 0, null);
-            digitImages.add(copy);
+            format(copy);
+            digitImages.add(convertToImage(copy, Integer.parseInt(digits[i])));
+            i++;
         }
 
         return digitImages;
@@ -387,5 +384,19 @@ public class ImageProcessorUtils {
                 sum += in[x][bottomPy] - in[x][topPy];
             }
         }
+    }
+
+    private static Image convertToImage(BufferedImage canvas, int label) {
+        int width = canvas.getWidth();
+        int height = canvas.getHeight();
+        double[][] data = new double[height][width];
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                data[y][x] = canvas.getRaster().getSample(x, y, 0);
+            }
+        }
+
+        return new Image(data, label);
     }
 }

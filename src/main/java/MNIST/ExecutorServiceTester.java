@@ -1,6 +1,8 @@
 package MNIST;
+import Image.Image;
 import Network.NeuralNetwork;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -13,7 +15,13 @@ public class ExecutorServiceTester {
 
         // 2. Use ThreadLocal so each thread in the pool initializes its own isolated NeuralNetwork[cite: 9]
         ThreadLocal<NeuralNetwork> threadLocalModel = ThreadLocal.withInitial(() ->
-                NeuralNetwork.fromString(serializedModel)
+                {
+                    try {
+                        return NeuralNetwork.fromString(serializedModel);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
         );
 
         // 3. Create the ExecutorService with a fixed number of worker threads
@@ -27,7 +35,7 @@ public class ExecutorServiceTester {
                 NeuralNetwork localNN = threadLocalModel.get();
 
                 // Return 1 if the guess matches the label, 0 if incorrect[cite: 6, 9]
-                if (localNN.guessMNIST(img) == img.getLabel()) {
+                if (localNN.guess(img) == img.getLabel()) {
                     return 1;
                 }
                 return 0;

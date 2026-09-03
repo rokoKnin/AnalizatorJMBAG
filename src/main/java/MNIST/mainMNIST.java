@@ -1,10 +1,11 @@
 package MNIST;
 
+import Image.Image;
 import Network.NetworkBuilder;
 import Network.NeuralNetwork;
 
-import javax.xml.crypto.Data;
-import java.io.File;
+import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
@@ -49,7 +50,7 @@ public class mainMNIST {
         System.out.println(nn);
 
         String outputFilePath = "src/main/resources/MNIST_nn/" + ID + ".txt";
-        FileWriter outputFile = new FileWriter(outputFilePath);
-        outputFile.write(nn.toString());
+        BufferedWriter bW = new BufferedWriter(new FileWriter(outputFilePath));
+        bW.write(nn.toString());
     }
 }

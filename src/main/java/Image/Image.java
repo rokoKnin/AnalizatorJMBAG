@@ -1,4 +1,4 @@
-package MNIST;
+package Image;
 
 public class Image {
     private double[][] data;

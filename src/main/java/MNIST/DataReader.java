@@ -1,5 +1,7 @@
 package MNIST;
 
+import Image.Image;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;

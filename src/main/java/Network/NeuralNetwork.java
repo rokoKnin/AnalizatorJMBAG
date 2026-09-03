@@ -1,8 +1,9 @@
 package Network;
 
 import Layers.Layer;
-import MNIST.Image;
+import Image.Image;
 
+import java.io.IOException;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +24,9 @@ public class NeuralNetwork {
         linkLayers();
     }
 
-    public static NeuralNetwork fromString(String data) {
+    public static NeuralNetwork fromString(String data) throws IOException {
         Scanner scanner = new Scanner(data);
-        if (!scanner.nextLine().equals("NEURAL_NETWORK")) return null;
+        if (!scanner.nextLine().equals("NEURAL_NETWORK")) throw new IOException("Wrong format or didnt load or something went wrong - Line 29!");
 
         String ID = scanner.nextLine();
         double scaleFactor = Double.parseDouble(scanner.nextLine());
@@ -80,12 +81,12 @@ public class NeuralNetwork {
                 }
 
                 double[] biases = new double[_outLength];
-                String[] biasesString = scanner.nextLine().split(",");
+                String[] biasesString = scanner.nextLine().split(",", -1);
                 for (int i = 0; i < _outLength; i++) {
                     biases[i] = Double.parseDouble(biasesString[i]);
                 }
 
-                builder.addPreTrainedFullyConnectedLayer(_inLength,  _outLength, _learningRate, _SEED, weights, biases);
+                builder.addPreTrainedFullyConnectedLayer(_inLength, _outLength, _learningRate, _SEED, weights, biases);
             }
         }
         scanner.close();
@@ -125,7 +126,7 @@ public class NeuralNetwork {
         return index;
     }
 
-    public int guessMNIST(Image image) {
+    public int guess(Image image) {
         List<double[][]> imList = new ArrayList<>();
 
         imList.add(multiply(image.getData(), 1.0/scaleFactor));
@@ -135,11 +136,11 @@ public class NeuralNetwork {
         return getMaxIndex(out);
     }
 
-    public float test (List<Image> images) {
+    public float test(List<Image> images) {
         int correct = 0;
 
         for(Image image : images){
-            int guess = guessMNIST(image);
+            int guess = guess(image);
 
             if (guess == image.getLabel()) {
                 correct ++;
