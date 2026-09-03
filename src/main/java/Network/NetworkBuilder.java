@@ -12,11 +12,13 @@ public class NetworkBuilder {
     private NeuralNetwork nn;
     private int _inputRows;
     private int _inputColumns;
+    private double _scaleFactor;
     List<Layer> layers;
 
-    public NetworkBuilder(int _inputRows, int _inputColumns) {
+    public NetworkBuilder(int _inputRows, int _inputColumns, double _scaleFactor) {
         this._inputRows = _inputRows;
         this._inputColumns = _inputColumns;
+        this._scaleFactor = _scaleFactor;
 
         layers = new ArrayList<>();
     }
@@ -49,7 +51,7 @@ public class NetworkBuilder {
     }
 
     public NeuralNetwork build() {
-        nn = new NeuralNetwork(layers);
+        nn = new NeuralNetwork(layers, _scaleFactor);
         return nn;
     }
 }

@@ -10,7 +10,7 @@ import java.util.List;
 import static java.util.Collections.shuffle;
 
 public class mainMNIST {
-    public static void main(String args[]) throws IOException {
+    public static void main(String[] args) throws IOException {
         long SEED = 3456;
 
         System.out.println("Starting MNIST data Loading...");
@@ -21,7 +21,7 @@ public class mainMNIST {
         System.out.println("Images Train size: " + imagesTrain.size());
         System.out.println("Images Test Size: " + imagesTest.size());
 
-        NetworkBuilder nb = new NetworkBuilder(28, 28);
+        NetworkBuilder nb = new NetworkBuilder(28, 28, 256*100);
         nb.addConvolutionLayer(8,5,1,0.1,SEED);
         nb.addMaxPoolLayer(3,2);
         nb.addFullyConnectedLayer(18, 0.1, SEED);
@@ -36,7 +36,6 @@ public class mainMNIST {
         for (int i = 0; i < epochs; i++) {
         shuffle(imagesTrain);
         nn.train(imagesTrain);
-
 
         rate = nn.test(imagesTest);
         System.out.println("test success rate at epoch " + i + ": " + rate);

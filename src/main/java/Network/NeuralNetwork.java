@@ -11,9 +11,11 @@ import static Utils.MatrixUtils.multiply;
 
 public class NeuralNetwork {
     List<Layer> layers;
+    double scaleFactor;
 
-    public NeuralNetwork(List<Layer> layers) {
+    public NeuralNetwork(List<Layer> layers, double scaleFactor) {
         this.layers = layers;
+        this.scaleFactor = scaleFactor;
 
         linkLayers();
     }
@@ -54,7 +56,7 @@ public class NeuralNetwork {
     public int guessMNIST(Image image) {
         List<double[][]> imList = new ArrayList<>();
 
-        imList.add(image.getData());
+        imList.add(multiply(image.getData(), 1.0/scaleFactor));
 
         double[] out = layers.getFirst().getOutput(imList);
 
@@ -62,7 +64,7 @@ public class NeuralNetwork {
     }
 
     public float test (List<Image> images) {
-        float correct = 0;
+        int correct = 0;
 
         for(Image image : images){
             int guess = guessMNIST(image);
@@ -72,13 +74,13 @@ public class NeuralNetwork {
             }
         }
 
-        return correct / (float)images.size();
+        return ((float)correct / images.size());
     }
 
     public void train(List<Image> images) {
         for (Image image : images) {
             List<double[][]> imList = new ArrayList<>();
-            imList.add(image.getData());
+            imList.add(multiply(image.getData(), 1.0/scaleFactor));
 
             double[] out = layers.getFirst().getOutput(imList);
             double[] dldO = getErrors(out, image.getLabel());
