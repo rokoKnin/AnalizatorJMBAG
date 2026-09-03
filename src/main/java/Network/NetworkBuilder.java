@@ -58,7 +58,7 @@ public class NetworkBuilder {
         layers.add(new MaxPoolLayer(stepSize, windowSize, inLength, inRows, inCols));
     }
 
-    public void addPreTrainedFullyConnectedLayer(int inLength, int outLength, double learningRate, long SEED, double[][] weights, double[][] biases) {
+    public void addPreTrainedFullyConnectedLayer(int inLength, int outLength, double learningRate, long SEED, double[][] weights, double[] biases) {
         layers.add(new FullyConnectedLayer(inLength, outLength, SEED, learningRate, weights, biases));
     }
 

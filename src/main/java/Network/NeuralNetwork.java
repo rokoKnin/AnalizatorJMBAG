@@ -75,7 +75,11 @@ public class NeuralNetwork {
                         weights[i][j] = Double.parseDouble(weightsString[idx++]);
                     }
                 }
-                double[][] biases = new double[_inLength][_outLength];
+                double[] biases = new double[_outLength];
+                String[] biasesString = scanner.nextLine().split(",");
+                for (int i = 0; i < _outLength; i++) {
+                    biases[i] = Double.parseDouble(biasesString[idx++]);
+                }
 
                 builder.addPreTrainedFullyConnectedLayer(_inLength,  _outLength, _learningRate, _SEED, weights, biases);
             }
