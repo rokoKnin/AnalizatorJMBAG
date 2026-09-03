@@ -45,11 +45,14 @@ public class FullyConnectedLayer extends Layer{
         System.arraycopy(biases, 0, z, 0, _outLength);
         double[] out = new double[_outLength];
 
-        for(int i = 0; i < _inLength; i++) {
-            for(int j = 0; j < _outLength; j++) {
-                z[j] += input[i] * weights[i][j];
+        java.util.stream.IntStream.range(0, _outLength).parallel().forEach(j -> {
+            double sum = biases[j];
+            for (int i = 0; i < _inLength; i++) {
+                sum += input[i] * weights[i][j];
             }
-        }
+            z[j] = sum;
+            out[j] = reLu(sum);
+        });
 
         lastZ = z;
 

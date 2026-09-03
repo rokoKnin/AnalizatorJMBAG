@@ -74,15 +74,9 @@ public class ConvolutionLayer extends Layer{
 
         List<double[][]> output = new ArrayList<>();
 
-        for (double[][] doubles : list) {
-            for (double[][] filter : _filters) {
-                output.add(convolve(doubles, filter, _stepsize));
-            }
-
-        }
-
-        return output;
-
+        return list.parallelStream()
+                .flatMap(doubles -> _filters.stream().map(filter -> convolve(doubles, filter, _stepsize)))
+                .collect(java.util.stream.Collectors.toList());
     }
 
     private double[][] convolve(double[][] input, double[][] filter, int stepSize) {
@@ -98,35 +92,20 @@ public class ConvolutionLayer extends Layer{
 
         double[][] output = new double[outRows][outCols];
 
-        int outRow = 0;
-        int outCol;
-
-        for(int i = 0; i <= inRows - fRows; i += stepSize){
-
-            outCol = 0;
-
-            for(int j = 0; j <= inCols - fCols; j+= stepSize){
-
+        java.util.stream.IntStream.range(0, outRows).parallel().forEach(outRow -> {
+            int i = outRow * stepSize;
+            for (int outCol = 0; outCol < outCols; outCol++) {
+                int j = outCol * stepSize;
                 double sum = 0.0;
 
-                //Apply Filter around this position
-                for(int x = 0; x < fRows; x++){
-                    for(int y = 0; y < fCols; y++){
-                        int inputRowIndex = i+x;
-                        int inpurColIndex = j+y;
-
-                        double value = filter[x][y] * input[inputRowIndex][inpurColIndex];
-                        sum+= value;
+                for (int x = 0; x < fRows; x++) {
+                    for (int y = 0; y < fCols; y++) {
+                        sum += filter[x][y] * input[i + x][j + y];
                     }
                 }
-
                 output[outRow][outCol] = sum;
-                outCol++;
             }
-
-            outRow++;
-
-        }
+        });
 
         return output;
 

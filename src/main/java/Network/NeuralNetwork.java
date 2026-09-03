@@ -11,10 +11,12 @@ import static Utils.MatrixUtils.add;
 import static Utils.MatrixUtils.multiply;
 
 public class NeuralNetwork {
-    List<Layer> layers;
-    double scaleFactor;
+    private String ID;
+    private List<Layer> layers;
+    private double scaleFactor;
 
-    public NeuralNetwork(List<Layer> layers, double scaleFactor) {
+    public NeuralNetwork(String ID, List<Layer> layers, double scaleFactor) {
+        this.ID = ID;
         this.layers = layers;
         this.scaleFactor = scaleFactor;
 
@@ -25,8 +27,9 @@ public class NeuralNetwork {
         Scanner scanner = new Scanner(data);
         if (!scanner.nextLine().equals("NEURAL_NETWORK")) return null;
 
+        String ID = scanner.nextLine();
         double scaleFactor = Double.parseDouble(scanner.nextLine());
-        NetworkBuilder builder = new NetworkBuilder(0, 0, scaleFactor);
+        NetworkBuilder builder = new NetworkBuilder(ID, 0, 0, scaleFactor);
 
         while (scanner.hasNextLine()) {
             String type = scanner.nextLine();
@@ -65,20 +68,21 @@ public class NeuralNetwork {
                 String[] params = scanner.nextLine().split(",");
                 int _inLength = Integer.parseInt(params[0]);
                 int _outLength = Integer.parseInt(params[1]);
-                int _learningRate = Integer.parseInt(params[2]);
-                int _SEED = Integer.parseInt(params[3]);
+                double _learningRate = Double.parseDouble(params[2]);
+                long _SEED = Long.parseLong(params[3]);
+
                 double[][] weights = new double[_inLength][_outLength];
-                String[] weightsString = scanner.nextLine().split(",");
-                int idx = 0;
                 for (int i = 0; i < _inLength; i++) {
+                    String[] weightsString = scanner.nextLine().split(",", -1);
                     for (int j = 0; j < _outLength; j++) {
-                        weights[i][j] = Double.parseDouble(weightsString[idx++]);
+                        weights[i][j] = Double.parseDouble(weightsString[j]);
                     }
                 }
+
                 double[] biases = new double[_outLength];
                 String[] biasesString = scanner.nextLine().split(",");
                 for (int i = 0; i < _outLength; i++) {
-                    biases[i] = Double.parseDouble(biasesString[idx++]);
+                    biases[i] = Double.parseDouble(biasesString[i]);
                 }
 
                 builder.addPreTrainedFullyConnectedLayer(_inLength,  _outLength, _learningRate, _SEED, weights, biases);
@@ -161,6 +165,7 @@ public class NeuralNetwork {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("NEURAL_NETWORK\n");
+        sb.append(ID).append("\n");
         sb.append(scaleFactor).append("\n");
         for (Layer layer : layers) {
             sb.append(layer.toString());

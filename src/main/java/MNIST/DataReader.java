@@ -11,32 +11,25 @@ public class DataReader {
     private final int cols = 28;
 
     public List<Image> readData(String path) {
-        List<Image> images = new ArrayList<>();
-
         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-            String line;
-
-            while ((line = br.readLine()) != null) {
-                String[] imageData = line.split(",");
-
-                double[][] data = new double[rows][cols];
-
-                int label = Integer.parseInt(imageData[0]);
-                int i = 1;
-
-                for (int row = 0; row < rows; row++) {
-                    for (int column = 0; column < cols; column++) {
-                        data[row][column] = (double) Integer.parseInt(imageData[i]);
-                        i++;
-                    }
-                }
-
-                images.add(new Image(data, label));
-            }
+            return br.lines()
+                    .parallel()
+                    .map(line -> {
+                        String[] imageData = line.split(",");
+                        double[][] data = new double[rows][cols];
+                        int label = Integer.parseInt(imageData[0]);
+                        int idx = 1;
+                        for (int row = 0; row < rows; row++) {
+                            for (int column = 0; column < cols; column++) {
+                                data[row][column] = Double.parseDouble(imageData[idx++]);
+                            }
+                        }
+                        return new Image(data, label);
+                    })
+                    .collect(java.util.stream.Collectors.toList());
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Error while reading file: " + e.getMessage());
+            return new ArrayList<>();
         }
-
-        return images;
     }
 }

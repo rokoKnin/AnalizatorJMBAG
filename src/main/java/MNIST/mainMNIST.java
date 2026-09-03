@@ -9,10 +9,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
+import static MNIST.ExecutorServiceTester.runParallelTest;
 import static java.util.Collections.shuffle;
 
 public class mainMNIST {
     public static void main(String[] args) throws IOException {
+        String ID = "NeuralNetwork_1";
         long SEED = 3456;
 
         System.out.println("Starting MNIST data Loading...");
@@ -23,14 +25,14 @@ public class mainMNIST {
         System.out.println("Images Train size: " + imagesTrain.size());
         System.out.println("Images Test Size: " + imagesTest.size());
 
-        NetworkBuilder nb = new NetworkBuilder(28, 28, 255);
+        NetworkBuilder nb = new NetworkBuilder(ID, 28, 28, 255);
         nb.addConvolutionLayer(8,5,1,0.001,SEED);
         nb.addMaxPoolLayer(3,2);
         nb.addFullyConnectedLayer(10, 0.001, SEED);
 
         NeuralNetwork nn = nb.build();
 
-        float rate = nn.test(imagesTest);
+        float rate = runParallelTest(nn, imagesTest, 20);
         System.out.println("Pre-training test success rate: " + rate);
 
         int epochs = 10;
@@ -39,14 +41,14 @@ public class mainMNIST {
         shuffle(imagesTrain);
         nn.train(imagesTrain);
 
-        rate = nn.test(imagesTest);
+        rate = runParallelTest(nn, imagesTest, 20);
         System.out.println("test success rate at epoch " + i + ": " + rate);
         }
 
         System.out.println();
         System.out.println(nn);
 
-        String outputFilePath = "src/main/resources/MNIST_nn/BestNN.txt";
+        String outputFilePath = "src/main/resources/MNIST_nn/" + ID + ".txt";
         FileWriter outputFile = new FileWriter(outputFilePath);
         outputFile.write(nn.toString());
     }

@@ -10,12 +10,14 @@ import java.util.List;
 
 public class NetworkBuilder {
     private NeuralNetwork nn;
+    private String ID;
     private int _inputRows;
     private int _inputColumns;
     private double _scaleFactor;
     List<Layer> layers;
 
-    public NetworkBuilder(int _inputRows, int _inputColumns, double _scaleFactor) {
+    public NetworkBuilder(String ID, int _inputRows, int _inputColumns, double _scaleFactor) {
+        this.ID = ID;
         this._inputRows = _inputRows;
         this._inputColumns = _inputColumns;
         this._scaleFactor = _scaleFactor;
@@ -63,7 +65,7 @@ public class NetworkBuilder {
     }
 
     public NeuralNetwork build() {
-        nn = new NeuralNetwork(layers, _scaleFactor);
+        nn = new NeuralNetwork(ID, layers, _scaleFactor);
         return nn;
     }
 }
