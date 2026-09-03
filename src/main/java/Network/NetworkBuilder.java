@@ -50,6 +50,18 @@ public class NetworkBuilder {
         }
     }
 
+    public void addPreTrainedConvolutionLayer(int filterSize, int stepSize, int inLength, int inRows, int inCols, double learningRate, List<double[][]> filters) {
+        layers.add(new ConvolutionLayer(filterSize, stepSize, inLength, inRows, inCols, learningRate, filters));
+    }
+
+    public void addPreTrainedMaxPoolLayer(int stepSize, int windowSize, int inLength, int inRows, int inCols) {
+        layers.add(new MaxPoolLayer(stepSize, windowSize, inLength, inRows, inCols));
+    }
+
+    public void addPreTrainedFullyConnectedLayer(int inLength, int outLength, double learningRate, long SEED, double[][] weights, double[][] biases) {
+        layers.add(new FullyConnectedLayer(inLength, outLength, SEED, learningRate, weights, biases));
+    }
+
     public NeuralNetwork build() {
         nn = new NeuralNetwork(layers, _scaleFactor);
         return nn;

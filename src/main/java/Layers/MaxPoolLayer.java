@@ -142,4 +142,10 @@ public class MaxPoolLayer extends Layer{
     public int getOutputElements() {
         return _inLength*getOutputCols()*getOutputRows();
     }
+
+    @Override
+    public String toString() {
+        return "MAXPOOL\n" + _stepSize + "," + _windowSize + "," +
+                _inLength + "," + _inRows + "," + _inCols + "\n";
+    }
 }

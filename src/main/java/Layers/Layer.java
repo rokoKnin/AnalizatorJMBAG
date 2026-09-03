@@ -19,6 +19,9 @@ public abstract class Layer {
     public abstract int getOutputCols();
     public abstract int getOutputElements();
 
+    @Override
+    public abstract String toString();
+
     public Layer get_nextLayer() {
         return _nextLayer;
     }

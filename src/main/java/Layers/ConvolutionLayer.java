@@ -22,6 +22,17 @@ public class ConvolutionLayer extends Layer{
 
     private List<double[][]> _lastInput;
 
+    public ConvolutionLayer(int filterSize, int stepSize, int inLength, int inRows, int inCols, double learningRate, List<double[][]> preTrainedFilters) {
+        this._filterSize = filterSize;
+        this._stepsize = stepSize;
+        this._inLength = inLength;
+        this._inRows = inRows;
+        this._inCols = inCols;
+        this._learningRate = learningRate;
+        this.SEED = 0; // Not needed for pre-trained
+        this._filters = preTrainedFilters;
+    }
+
     public ConvolutionLayer(int _filterSize, int _stepsize, int _inLength, int _inRows, int _inCols, long SEED, int numFilters, double learningRate) {
         this._filterSize = _filterSize;
         this._stepsize = _stepsize;
@@ -303,5 +314,27 @@ public class ConvolutionLayer extends Layer{
     @Override
     public int getOutputElements() {
         return getOutputCols()*getOutputRows()*getOutputLength();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("CONVOLUTION\n");
+        // Hyperparameters separated by commas
+        sb.append(_filterSize).append(",").append(_stepsize).append(",")
+                .append(_inLength).append(",").append(_inRows).append(",")
+                .append(_inCols).append(",").append(_learningRate).append(",")
+                .append(_filters.size()).append("\n");
+
+        // Flatten and save each filter's weights
+        for (double[][] filter : _filters) {
+            for (int i = 0; i < _filterSize; i++) {
+                for (int j = 0; j < _filterSize; j++) {
+                    sb.append(filter[i][j]).append(",");
+                }
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 }

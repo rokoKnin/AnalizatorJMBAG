@@ -4,6 +4,8 @@ import Network.NetworkBuilder;
 import Network.NeuralNetwork;
 
 import javax.xml.crypto.Data;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -41,6 +43,11 @@ public class mainMNIST {
         System.out.println("test success rate at epoch " + i + ": " + rate);
         }
 
+        System.out.println();
+        System.out.println(nn);
 
+        String outputFilePath = "src/main/resources/MNIST_nn/BestNN.txt";
+        FileWriter outputFile = new FileWriter(outputFilePath);
+        outputFile.write(nn.toString());
     }
 }

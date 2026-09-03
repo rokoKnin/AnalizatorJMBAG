@@ -8,6 +8,7 @@ public class FullyConnectedLayer extends Layer{
     private final double LEAK = 0.01;
 
     private double[][] weights;
+    private double[][] biases;
     private int _inLength;
     private int _outLength;
     private double learningRate;
@@ -23,7 +24,18 @@ public class FullyConnectedLayer extends Layer{
 
 
         weights = new double[_inLength][_outLength];
+        biases = new double[_inLength][_outLength];
         setRandomWeights();
+
+    }
+
+    public FullyConnectedLayer(int _inLength, int _outLength, long SEED, double learningRate, double[][] weights, double[][] biases) {
+        this._inLength = _inLength;
+        this._outLength = _outLength;
+        this.learningRate = learningRate;
+        this.weights = weights;
+        this.biases = biases;
+        this.SEED = SEED;
     }
 
     public double[] fullyConnectedForwardPass(double[] input) {
@@ -141,5 +153,26 @@ public class FullyConnectedLayer extends Layer{
 
     public double derrivativeReLu(double input) {
         return input < 0 ? LEAK : 1;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("FULLY_CONNECTED\n");
+        sb.append(_inLength).append(",").append(_outLength).append(",").append(learningRate).append(",").append(SEED).append("\n");
+
+        // Append weights
+        for (int i = 0; i < _outLength; i++) {
+            for (int j = 0; j < _inLength; j++) {
+                sb.append(weights[i][j]).append(",");
+            }
+            sb.append("\n");
+        }
+        // Append biases
+        for (int i = 0; i < _outLength; i++) {
+            sb.append(biases[i]).append(",");
+        }
+        sb.append("\n");
+        return sb.toString();
     }
 }

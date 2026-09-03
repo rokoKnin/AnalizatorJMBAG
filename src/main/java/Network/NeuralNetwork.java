@@ -3,6 +3,7 @@ package Network;
 import Layers.Layer;
 import MNIST.Image;
 
+import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +19,69 @@ public class NeuralNetwork {
         this.scaleFactor = scaleFactor;
 
         linkLayers();
+    }
+
+    public static NeuralNetwork fromString(String data) {
+        Scanner scanner = new Scanner(data);
+        if (!scanner.nextLine().equals("NEURAL_NETWORK")) return null;
+
+        double scaleFactor = Double.parseDouble(scanner.nextLine());
+        NetworkBuilder builder = new NetworkBuilder(0, 0, scaleFactor);
+
+        while (scanner.hasNextLine()) {
+            String type = scanner.nextLine();
+
+            if (type.equals("CONVOLUTION")) {
+                String[] params = scanner.nextLine().split(",");
+                int fSize = Integer.parseInt(params[0]);
+                int sSize = Integer.parseInt(params[1]);
+                int inLen = Integer.parseInt(params[2]);
+                int inRow = Integer.parseInt(params[3]);
+                int inCol = Integer.parseInt(params[4]);
+                double lr = Double.parseDouble(params[5]);
+                int numFilters = Integer.parseInt(params[6]);
+
+                List<double[][]> filters = new ArrayList<>();
+                for (int f = 0; f < numFilters; f++) {
+                    String[] wStrings = scanner.nextLine().split(",");
+                    double[][] filter = new double[fSize][fSize];
+                    int idx = 0;
+                    for (int i = 0; i < fSize; i++) {
+                        for (int j = 0; j < fSize; j++) {
+                            filter[i][j] = Double.parseDouble(wStrings[idx++]);
+                        }
+                    }
+                    filters.add(filter);
+                }
+                builder.addPreTrainedConvolutionLayer(fSize, sSize, inLen, inRow, inCol, lr, filters);
+
+            } else if (type.equals("MAXPOOL")) {
+                String[] params = scanner.nextLine().split(",");
+                builder.addPreTrainedMaxPoolLayer(
+                        Integer.parseInt(params[0]), Integer.parseInt(params[1]),
+                        Integer.parseInt(params[2]), Integer.parseInt(params[3]), Integer.parseInt(params[4])
+                );
+            } else if (type.equals("FULLY_CONNECTED")) {
+                String[] params = scanner.nextLine().split(",");
+                int _inLength = Integer.parseInt(params[0]);
+                int _outLength = Integer.parseInt(params[1]);
+                int _learningRate = Integer.parseInt(params[2]);
+                int _SEED = Integer.parseInt(params[3]);
+                double[][] weights = new double[_inLength][_outLength];
+                String[] weightsString = scanner.nextLine().split(",");
+                int idx = 0;
+                for (int i = 0; i < _inLength; i++) {
+                    for (int j = 0; j < _outLength; j++) {
+                        weights[i][j] = Double.parseDouble(weightsString[idx++]);
+                    }
+                }
+                double[][] biases = new double[_inLength][_outLength];
+
+                builder.addPreTrainedFullyConnectedLayer(_inLength,  _outLength, _learningRate, _SEED, weights, biases);
+            }
+        }
+        scanner.close();
+        return builder.build();
     }
 
     private void linkLayers() {
@@ -87,5 +151,16 @@ public class NeuralNetwork {
 
             layers.getLast().backPropagate(dldO);
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("NEURAL_NETWORK\n");
+        sb.append(scaleFactor).append("\n");
+        for (Layer layer : layers) {
+            sb.append(layer.toString());
+        }
+        return sb.toString();
     }
 }
