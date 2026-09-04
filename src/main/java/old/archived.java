@@ -1,8 +1,65 @@
 package old;
 
+import Image.Image;
+import Network.NeuralNetwork;
+import Utils.ImageProcessorUtils;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static Utils.ImageProcessorUtils.convertToImage;
+import static Utils.ImageProcessorUtils.formatTo32x32;
 
 public class archived {
+
+    public static void main(String[] args) {
+        String number = "0012592037";
+        ArrayList<BufferedImage> images = new ArrayList<>();
+
+        String inputFilePath = "src/main/resources/JMBAG_dataSet/trainingPictures/0012592037.jpeg";
+        String outputOtsuFilePath = "src/main/resources/";
+        String inputNeuralNetwork = "src\\main\\resources\\MNIST_nn\\NeuralNetwork_1.txt";
+        try (BufferedReader br = new BufferedReader(new FileReader(inputNeuralNetwork))) {
+            NeuralNetwork nn = NeuralNetwork.fromString(br.readAllAsString());
+            BufferedImage originalImage = ImageIO.read(new File(inputFilePath));
+            if (originalImage == null) {
+                System.out.println("Error: Could not load the image.");
+                return;
+            }
+
+            BufferedImage grayImage = ImageProcessorUtils.processImage(originalImage);
+
+            File outputFiles = new File(outputOtsuFilePath + "_" + number + ".png");
+            outputFiles.getParentFile().mkdirs();
+            ImageIO.write(grayImage, "png", outputFiles);
+
+            List<BufferedImage> numbers = ImageProcessorUtils.segmentNumbers(grayImage);
+
+            numbers = formatTo32x32(numbers);
+
+            StringBuilder sb = new StringBuilder();
+
+            for (BufferedImage image : numbers) {
+                File outputFile = new File(outputOtsuFilePath + numbers.indexOf(image) + ".png");
+                outputFile.getParentFile().mkdirs();
+                ImageIO.write(image, "png", outputFile);
+                Image netImage = convertToImage(image, 1);
+                int predictedDigit = nn.guess(netImage);
+                sb.append(predictedDigit);
+            }
+            long result = Long.parseLong(sb.toString());
+            System.out.println("I think the number is: " + result);
+            System.out.println("The real number is: " + number);
+        } catch (IOException e) {
+            System.out.println("An error occurred: Line 42\n" + e.getMessage());
+        }
+    }
 
     public static BufferedImage fixed(BufferedImage originalImage) {
         int width = originalImage.getWidth();
